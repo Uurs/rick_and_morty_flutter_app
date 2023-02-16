@@ -14,6 +14,7 @@ class CharacterListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () => onClick(character),
       child: Card(
@@ -35,9 +36,20 @@ class CharacterListItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(character.name),
-                  Text(character.status),
-                  Text(character.species),
+                  Text(
+                    character.name,
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    character.status,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    character.species,
+                    style: theme.textTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:rick_and_morty_preview/localization.dart';
 import 'package:rick_and_morty_preview/screens/favorites/screen_favorites.dart';
 import 'package:rick_and_morty_preview/screens/search/screen_search.dart';
 
@@ -16,14 +17,14 @@ class HomeScreen extends HookWidget {
         currentIndex: currentPage.value,
         onTap: (index) => pageController.animateToPage(index,
             duration: const Duration(milliseconds: 300), curve: Curves.ease),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: const Icon(Icons.search),
+            label: localization(context).home_bottom_nav_bar_search,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
+            icon: const Icon(Icons.favorite),
+            label: localization(context).home_bottom_nav_bar_favorites,
           ),
         ],
       ),

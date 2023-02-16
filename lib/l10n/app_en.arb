@@ -1,0 +1,12 @@
+{
+  "home_bottom_nav_bar_search" : "Search",
+  "home_bottom_nav_bar_favorites" : "Favorites",
+  "common_failed_to_fetch_data" : "Failed to load data",
+  "search_input_label" : "Search a character",
+
+  "character_details_subtitle_species" : "Species",
+  "character_details_subtitle_status" : "Status",
+  "character_details_subtitle_gender" : "Gender",
+  "character_details_subtitle_origin" : "Origin",
+  "character_details_subtitle_last_known_location" : "Last known location"
+}

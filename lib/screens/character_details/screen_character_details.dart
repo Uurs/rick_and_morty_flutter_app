@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:rick_and_morty_preview/localization.dart';
 import 'package:rick_and_morty_preview/model/character_details.dart';
 import 'package:rick_and_morty_preview/repository/repository_character.dart';
 import 'package:rick_and_morty_preview/screens/character_details/character_details_state_provider.dart';
@@ -21,8 +22,8 @@ class CharacterDetailsScreen extends HookConsumerWidget {
     }
 
     final content = loadData.when(
-      data: (data) => _onDataLoaded(Theme.of(context), data, toggleFavorite),
-      error: (ob, trace) => _onError(),
+      data: (data) => _onDataLoaded(context, data, toggleFavorite),
+      error: (ob, trace) => _onError(context),
       loading: () => _onLoading(),
     );
 
@@ -38,10 +39,12 @@ class CharacterDetailsScreen extends HookConsumerWidget {
   }
 
   Widget _onDataLoaded(
-    ThemeData theme,
+    BuildContext context,
     CharacterDetails details,
     Function toggleFavorite,
   ) {
+    final theme = Theme.of(context);
+    final loc = localization(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -86,17 +89,30 @@ class CharacterDetailsScreen extends HookConsumerWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              _nameValueWidget(theme, "status", details.character.status),
+              _nameValueWidget(
+                theme,
+                loc.character_details_subtitle_status,
+                details.character.status,
+              ),
               const SizedBox(width: 16),
-              _nameValueWidget(theme, "species", details.character.species),
+              _nameValueWidget(
+                theme,
+                loc.character_details_subtitle_species,
+                details.character.species,
+              ),
               const SizedBox(width: 16),
-              _nameValueWidget(theme, "gender", details.meta.gender),
+              _nameValueWidget(
+                theme,
+                loc.character_details_subtitle_gender,
+                details.meta.gender,
+              ),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _nameValueWidget(theme, "Origin", details.meta.originLocation),
+              _nameValueWidget(theme, loc.character_details_subtitle_origin,
+                  details.meta.originLocation),
             ],
           ),
           const SizedBox(height: 16),
@@ -104,7 +120,7 @@ class CharacterDetailsScreen extends HookConsumerWidget {
             children: [
               _nameValueWidget(
                 theme,
-                "Last known location",
+                loc.character_details_subtitle_last_known_location,
                 details.meta.lastKnownLocation,
               ),
             ],
@@ -114,12 +130,13 @@ class CharacterDetailsScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _onError() {
+  Widget _onError(BuildContext context) {
     return Column(
-      children: const [
-        Text("Failed to load data"),
-        SizedBox(height: 16),
-        Text("try again later"),
+      children: [
+        Text(
+          localization(context).common_failed_to_fetch_data,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
       ],
     );
   }
@@ -137,12 +154,12 @@ class CharacterDetailsScreen extends HookConsumerWidget {
         children: [
           Text(
             name,
-            style: theme.textTheme.labelMedium,
+            style: theme.textTheme.labelSmall,
           ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyLarge,
           ),
         ],
       ),

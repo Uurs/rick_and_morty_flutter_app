@@ -21,6 +21,9 @@ dependencies:
   dio: ^5.0.0
   logger: ^1.1.0
   floor: ^1.4.1
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +36,7 @@ dev_dependencies:
   floor_generator: ^1.4.1
 
 flutter:
+  generate: true
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
