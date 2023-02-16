@@ -1,6 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rick_and_morty_preview/constants.dart';
-import 'package:rick_and_morty_preview/logger.dart';
 import 'package:rick_and_morty_preview/model/character.dart';
 import 'package:rick_and_morty_preview/model/character_details.dart';
 import 'package:rick_and_morty_preview/model/characters_page.dart';
@@ -10,10 +9,13 @@ import 'package:rick_and_morty_preview/repository/local_datasource/character_dao
 import 'package:rick_and_morty_preview/repository/local_datasource/entities/character_entity.dart';
 import 'package:rick_and_morty_preview/repository/mappers/character_details_dto_mapper.dart';
 import 'package:rick_and_morty_preview/repository/mappers/character_dto_mappers.dart';
+import 'package:rick_and_morty_preview/repository/mappers/character_entity_mapper.dart';
 import 'package:rick_and_morty_preview/repository/mappers/character_entity_mappers.dart';
+import 'package:rick_and_morty_preview/repository/mappers/character_meta_mapper.dart';
 import 'package:rick_and_morty_preview/repository/remote_datasource/api_service.dart';
 
-final characterRepositoryProvider = FutureProvider<CharacterRepository>((ref) async {
+final characterRepositoryProvider =
+    FutureProvider<CharacterRepository>((ref) async {
   final apiService = ref.watch(characterApiServiceProvider);
   final characterDao = await ref.watch(characterDaoProvider.future);
   final connectivityObserver = ref.watch(connectivityObserverProvider);
@@ -73,17 +75,17 @@ class _CharacterRepository extends CharacterRepository {
 
   @override
   Future<CharacterDetails> getCharacterDetails(int id) async {
-    final characterDetails = await _apiService.getCharacterDetails(id);
-    final favorites = await _characterDao.getFavorites().first;
-    final isFavorite = favorites.any((element) => element.id == id);
-    return characterDetails.toCharacterDetails(isFavorite: isFavorite);
+    if (await _connectivityObserver.isConnected) {
+      return _fetchCharacterDetailsFromRemote(id);
+    } else {
+      return _fetchCharacterDetailsFromLocal(id);
+    }
   }
 
   Future<CharactersPage> _fetchCharactersFromRemote(
       String? byName, int page) async {
     final searchResponse = await _apiService.searchCharacters(byName, page);
-    final favoriteCharacters =
-        await _characterDao.getFavorites().first;
+    final favoriteCharacters = await _characterDao.getFavorites().first;
     final favoriteIds = favoriteCharacters.map((e) => e.id).toSet();
     final characters = searchResponse.results
         .map((e) => e.toCharacter(isFavorite: favoriteIds.contains(e.id)))
@@ -101,8 +103,8 @@ class _CharacterRepository extends CharacterRepository {
     final offset = page * PAGE_ITEM_COUNT;
     Future<List<CharacterEntity>> future;
     if (byName != null) {
-      future = _characterDao
-          .getCharactersWithName(byName, offset, PAGE_ITEM_COUNT);
+      future =
+          _characterDao.getCharactersWithName(byName, offset, PAGE_ITEM_COUNT);
     } else {
       future = _characterDao.getCharacters(offset, PAGE_ITEM_COUNT);
     }
@@ -113,5 +115,27 @@ class _CharacterRepository extends CharacterRepository {
             hasNext: value.length % PAGE_ITEM_COUNT == 0,
             // TODO replace it with correct check
             characters: value.toList()));
+  }
+
+  Future<CharacterDetails> _fetchCharacterDetailsFromRemote(int id) async {
+    final characterDetailsDto = await _apiService.getCharacterDetails(id);
+    final characterDetails = characterDetailsDto.toCharacterDetails();
+    await _characterDao
+        .insertOrUpdateCharacter(characterDetails.character.toEntity());
+    await _characterDao
+        .insertOrUpdateCharacterMeta(characterDetails.meta.toEntity(id));
+    return characterDetails;
+  }
+
+  Future<CharacterDetails> _fetchCharacterDetailsFromLocal(int id) async {
+    final characterEntity = await _characterDao.getCharacterById(id);
+    final characterMetaEntity = await _characterDao.getCharacterMetaById(id);
+    if (characterEntity == null || characterMetaEntity == null) {
+      throw Exception("failed to find cached value");
+    }
+    return CharacterDetails(
+      character: characterEntity.toCharacter(),
+      meta: characterMetaEntity.toCharacterMeta(),
+    );
   }
 }

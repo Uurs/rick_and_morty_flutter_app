@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:rick_and_morty_preview/router.gr.dart';
 import 'package:rick_and_morty_preview/screens/favorites/favorites_state_notifier.dart';
 import 'package:rick_and_morty_preview/widgets/character_list_item.dart';
 
@@ -21,7 +23,10 @@ class FavoritesScreen extends ConsumerWidget {
         itemBuilder: (context, index) => CharacterListItem(
           character: characters[index],
           onFavorite: onFavorite,
-          onClick: (ch) {},
+          onClick: (ch) {
+            AutoRouter.of(context)
+                .push(CharacterDetailsRoute(characterId: ch.id));
+          },
         ),
       ),
     );

@@ -2,6 +2,15 @@ import 'package:floor/floor.dart';
 
 @entity
 class CharacterEntity {
+  CharacterEntity(
+    this.id,
+    this.name,
+    this.status,
+    this.species,
+    this.image,
+    this.isFavorite,
+  );
+
   @primaryKey
   final int id;
   final String name;
@@ -9,7 +18,4 @@ class CharacterEntity {
   final String species;
   final String image;
   bool isFavorite;
-
-  CharacterEntity(this.id, this.name, this.status, this.species, this.image,
-      this.isFavorite);
 }

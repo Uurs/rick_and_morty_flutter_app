@@ -1,5 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:rick_and_morty_preview/repository/local_datasource/entities/character_entity.dart';
+import 'package:rick_and_morty_preview/repository/local_datasource/entities/character_meta_entity.dart';
 
 @dao
 abstract class CharacterDao {
@@ -18,6 +19,12 @@ abstract class CharacterDao {
 
   @Query("SELECT * FROM CharacterEntity WHERE id = :id")
   Future<CharacterEntity?> getCharacterById(int id);
+
+  @Query("SELECT * FROM CharacterMetaEntity WHERE id = :id")
+  Future<CharacterMetaEntity?> getCharacterMetaById(int id);
+
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> insertOrUpdateCharacterMeta(CharacterMetaEntity entity);
 
   @Query("SELECT * FROM CharacterEntity WHERE isFavorite = 1")
   Stream<List<CharacterEntity>> getFavorites();
